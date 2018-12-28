@@ -20,5 +20,8 @@ if __name__ == "__main__":
     parser.add_argument('--dataPath', type=str, default='./', help='Save directory')
 
     args = parser.parse_args()
+
+    print('Processing ...')
     getTarget(args)
     
+    print('Exit！')

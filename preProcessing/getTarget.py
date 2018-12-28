@@ -6,13 +6,13 @@ import cv2
 from skimage.measure import label
 from collectData import saveData
 
-def maskTarget(frame, area, args):
+def maskLabel(frame, area, args):
     '''
     use mask to get the target
     '''
-    lower_target = np.array(args.lower_target)
-    upper_target = np.array(args.upper_target)
-    targetMask = cv2.inRange(frame, lower_target, upper_target)
+    lower_label = np.array(args.lower_label)
+    upper_label = np.array(args.upper_label)
+    targetMask = cv2.inRange(frame, lower_label, upper_label)
     frame = cv2.bitwise_and(frame, frame, mask = targetMask)
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     _,frame = cv2.threshold(frame,2,255,cv2.THRESH_BINARY)
@@ -20,6 +20,32 @@ def maskTarget(frame, area, args):
     erosion = cv2.erode(area, kernel, iterations = 3)
     frame = cv2.bitwise_and(frame, erosion)
     frame = largestConnectComponent(frame)
+
+    return frame
+
+def maskTarget(frame, area, args):
+    '''
+    use mask to get the target
+    '''
+    lower_skin = np.array(args.lower_skin)
+    upper_skin = np.array(args.upper_skin)
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    targetMask = cv2.inRange(frame, lower_skin, upper_skin)
+    frame = cv2.bitwise_and(frame, frame, mask = targetMask)
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    _,frame = cv2.threshold(frame,2,255,cv2.THRESH_BINARY)
+    kernel1 = np.ones((8,8) ,np.uint8)  
+    kernel2 = np.ones((5,5) ,np.uint8)  
+    erosion = cv2.erode(area, kernel1, iterations = 3)
+    frame = cv2.bitwise_and(frame, erosion)
+    frame = largestConnectComponent(frame)
+    frame = cv2.dilate(frame, kernel2, iterations = 3)
+    frame[np.where(frame==255)]=1
+    frame[np.where(frame==0)]=255
+    frame[np.where(frame==1)]=0
+    frame = cv2.bitwise_and(frame, area)
+    # bw_img[np.where(labeled_img==max_label)]=0
+    # frame = abs(frame - 255)
 
     return frame
 
@@ -96,20 +122,21 @@ def maskProcess(frame, args):
     largest = largestConnectComponent(dilated)
     
     target = maskTarget(frame, largest, args)
+    label = maskLabel(frame, largest, args)
     
     # draw the target at the origin frame
-    targetCenter = findCenter(target)
+    targetCenter = findCenter(label)
     cv2.circle(frame, targetCenter, 5, (0,0,255), -1)
 
     # show the skin in the image along with the mask
     cv2.imshow("images-1", np.hstack([frame, skin]))
-    cv2.imshow("images-2", np.hstack([gray, dilated, largest, target]))
+    cv2.imshow("images-2", np.hstack([gray, dilated, largest, target, label]))
     # if the 'q' key is pressed, stop the loop
     key = cv2.waitKey(1)
     if key & 0xFF == ord("q"):
         return False
     elif key & 0xFF == ord("c"):
-        saveData(largest, targetCenter, args.dataPath)
+        saveData(target, targetCenter, args.dataPath)
 
     return True
 
@@ -136,4 +163,5 @@ def getTarget(args):
         # cleanup the camera and close any open windows
         camera.release()
         cv2.destroyAllWindows()
-        
+
+    

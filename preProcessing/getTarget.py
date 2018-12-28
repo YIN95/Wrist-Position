@@ -4,6 +4,7 @@ import imutils
 import argparse
 import cv2
 from skimage.measure import label
+from collectData import saveData
 
 def maskTarget(frame, area, args):
     '''
@@ -77,8 +78,8 @@ def maskProcess(frame, args):
     # apply a series of erosions and dilations to the mask
     # using an elliptical kernel
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (args.elliptical, args.elliptical))
-    skinMask = cv2.erode(skinMask, kernel, iterations = 3)
-    skinMask = cv2.dilate(skinMask, kernel, iterations = 3)
+    skinMask = cv2.erode(skinMask, kernel, iterations = 2)
+    skinMask = cv2.dilate(skinMask, kernel, iterations = 2)
 
     # blur the mask to help remove noise, then apply the
     # mask to the frame
@@ -104,8 +105,11 @@ def maskProcess(frame, args):
     cv2.imshow("images-1", np.hstack([frame, skin]))
     cv2.imshow("images-2", np.hstack([gray, dilated, largest, target]))
     # if the 'q' key is pressed, stop the loop
-    if cv2.waitKey(1) & 0xFF == ord("q"):
+    key = cv2.waitKey(1)
+    if key & 0xFF == ord("q"):
         return False
+    elif key & 0xFF == ord("c"):
+        saveData(largest, targetCenter, args.dataPath)
 
     return True
 
@@ -123,6 +127,8 @@ def getTarget(args):
             # grab the current frame
             _, frame = camera.read()
             frame = imutils.resize(frame, width = args.width)
+            minsize = min(frame.shape[0], frame.shape[1])
+            frame = frame[0:minsize, 0:minsize, :]
             onprocess = maskProcess(frame, args)
             if not onprocess:
                 break

@@ -5,6 +5,29 @@ import argparse
 import cv2
 from skimage.measure import label
 
+def maskTarget(frame, area, args):
+    '''
+    use mask to get the target
+    '''
+    lower_target = np.array(args.lower_target)
+    upper_target = np.array(args.upper_target)
+    targetMask = cv2.inRange(frame, lower_target, upper_target)
+    frame = cv2.bitwise_and(frame, frame, mask = targetMask)
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    _,frame = cv2.threshold(frame,2,255,cv2.THRESH_BINARY)
+    kernel = np.ones((8,8) ,np.uint8)  
+    erosion = cv2.erode(area, kernel, iterations = 3)
+    frame = cv2.bitwise_and(frame, erosion)
+    frame = largestConnectComponent(frame)
+    return frame
+
+def findCenter(frame):
+    index = np.where(frame==255)
+    c_index = int(np.sum(index[0])/len(index[0]))
+    l_index = int(np.sum(index[1])/len(index[1]))
+
+    return [c_index, l_index]
+
 def largestConnectComponent(frame):
     '''
     compute largest Connect component of an labeled image
@@ -66,9 +89,11 @@ def maskProcess(frame, args):
 
     largest = largestConnectComponent(dilated)
     
+    target = maskTarget(frame, largest, args)
+
     # show the skin in the image along with the mask
     cv2.imshow("images-1", np.hstack([frame, skin]))
-    cv2.imshow("images-2", np.hstack([gray, dilated, largest]))
+    cv2.imshow("images-2", np.hstack([gray, dilated, largest, target]))
     # if the 'q' key is pressed, stop the loop
     if cv2.waitKey(1) & 0xFF == ord("q"):
         return False
@@ -89,7 +114,6 @@ def getTarget(args):
             # grab the current frame
             _, frame = camera.read()
             frame = imutils.resize(frame, width = args.width)
-
             onprocess = maskProcess(frame, args)
             if not onprocess:
                 break

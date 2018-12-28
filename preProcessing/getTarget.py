@@ -19,6 +19,10 @@ def maskTarget(frame, area, args):
     erosion = cv2.erode(area, kernel, iterations = 3)
     frame = cv2.bitwise_and(frame, erosion)
     frame = largestConnectComponent(frame)
+
+    targetCenter = findCenter(frame)
+    cv2.circle(frame, targetCenter, 63, (0,0,255), -1)
+
     return frame
 
 def findCenter(frame):
@@ -90,7 +94,7 @@ def maskProcess(frame, args):
     largest = largestConnectComponent(dilated)
     
     target = maskTarget(frame, largest, args)
-
+    
     # show the skin in the image along with the mask
     cv2.imshow("images-1", np.hstack([frame, skin]))
     cv2.imshow("images-2", np.hstack([gray, dilated, largest, target]))

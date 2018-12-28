@@ -20,17 +20,18 @@ def maskTarget(frame, area, args):
     frame = cv2.bitwise_and(frame, erosion)
     frame = largestConnectComponent(frame)
 
-    targetCenter = findCenter(frame)
-    cv2.circle(frame, targetCenter, 63, (0,0,255), -1)
-
     return frame
 
 def findCenter(frame):
     index = np.where(frame==255)
-    c_index = int(np.sum(index[0])/len(index[0]))
-    l_index = int(np.sum(index[1])/len(index[1]))
+    c_index = 0
+    l_index = 0
 
-    return [c_index, l_index]
+    if (len(index[0])>0):
+        c_index = int(np.sum(index[0])/len(index[0]))
+        l_index = int(np.sum(index[1])/len(index[1]))
+
+    return (l_index, c_index)
 
 def largestConnectComponent(frame):
     '''
@@ -76,8 +77,8 @@ def maskProcess(frame, args):
     # apply a series of erosions and dilations to the mask
     # using an elliptical kernel
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (args.elliptical, args.elliptical))
-    skinMask = cv2.erode(skinMask, kernel, iterations = 2)
-    skinMask = cv2.dilate(skinMask, kernel, iterations = 2)
+    skinMask = cv2.erode(skinMask, kernel, iterations = 3)
+    skinMask = cv2.dilate(skinMask, kernel, iterations = 3)
 
     # blur the mask to help remove noise, then apply the
     # mask to the frame
@@ -90,11 +91,15 @@ def maskProcess(frame, args):
     # convert to binary image
     _,binary = cv2.threshold(gray,2,255,cv2.THRESH_BINARY)
     dilated = cv2.dilate(binary,kernel)
-
+    
     largest = largestConnectComponent(dilated)
     
     target = maskTarget(frame, largest, args)
     
+    # draw the target at the origin frame
+    targetCenter = findCenter(target)
+    cv2.circle(frame, targetCenter, 5, (0,0,255), -1)
+
     # show the skin in the image along with the mask
     cv2.imshow("images-1", np.hstack([frame, skin]))
     cv2.imshow("images-2", np.hstack([gray, dilated, largest, target]))

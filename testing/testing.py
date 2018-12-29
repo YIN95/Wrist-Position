@@ -3,11 +3,14 @@ import argparse
 import cv2
 import imutils
 import sys
+import os
+os.environ["CUDA_VISIBLE_DEVICES"]="-1"   
 sys.path.append('../preProcessing/')
 from getTarget import maskProcess
 from keras.models import load_model
 from skimage.measure import label
 import numpy as np
+ 
 
 if __name__ == "__main__":
     print('\nLoading parameters', end=' ----------')

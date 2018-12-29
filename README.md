@@ -5,7 +5,7 @@
 ### TODO
 - [x] Pre-process video
 - [x] Collect and label the data  
-- [ ] Load data for training
+- [x] Load data for training
 - [ ] Build up the model
 - [ ] Training the model
 - [ ] Merge two model for adaptive learning

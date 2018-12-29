@@ -106,3 +106,4 @@ venv.bak/
 # new
 *.jpg
 *.json
+*.pkl

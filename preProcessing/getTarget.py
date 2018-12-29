@@ -134,11 +134,11 @@ def maskProcess(frame, args):
     # if the 'q' key is pressed, stop the loop
     key = cv2.waitKey(1)
     if key & 0xFF == ord("q"):
-        return False
+        return False, target
     elif key & 0xFF == ord("c"):
         saveData(target, targetCenter, args.dataPath)
 
-    return True
+    return True, target
 
 def getTarget(args):
     '''
@@ -156,7 +156,7 @@ def getTarget(args):
             frame = imutils.resize(frame, width = args.width)
             minsize = min(frame.shape[0], frame.shape[1])
             frame = frame[0:minsize, 0:minsize, :]
-            onprocess = maskProcess(frame, args)
+            onprocess, _ = maskProcess(frame, args)
             if not onprocess:
                 break
                         

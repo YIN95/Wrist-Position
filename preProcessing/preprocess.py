@@ -5,7 +5,7 @@ from getTarget import getTarget
 
 
 if __name__ == "__main__":
-    print('Loading parameters', end=' ...  ')    
+    print('\nLoading parameters', end=' ---------- ')    
     parser = argparse.ArgumentParser()
     parser.add_argument('--camera', type=int, default=1, help='camera number')
     parser.add_argument('--width', type=int, default=400, help='image width')
@@ -19,8 +19,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print('Done')
 
-    print('Processing ... ')    
+    print('\nProcessing ---------- ')    
     getTarget(args)
     print('Done')
 
-    print('Exit！')
+    print('\nExit！')

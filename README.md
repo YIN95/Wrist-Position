@@ -19,6 +19,7 @@
 - cv2 V3.4.4
 - tensorflow-gpu v1.12.0
 - keras v2.2.4
+- pytorch v0.3.0
 
 ### Data Set
 The data file looks like below

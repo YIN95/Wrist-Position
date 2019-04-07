@@ -23,7 +23,7 @@ def train(X, Y, args):
         data_format='channels_first',
     ))
     model.add(Activation('relu'))
-
+2
     # Pooling layer 1 (max pooling) output shape (128, 32, 32)
     model.add(MaxPooling2D(
         pool_size=2,
@@ -51,7 +51,7 @@ def train(X, Y, args):
               loss='mse',
               metrics=['accuracy'])
     
-    model.fit(X_train, Y_train, epochs=100, batch_size=16,)
+    model.fit(X_train, Y_train, epochs=30, batch_size=64)
 
     print('\nTesting ------------')
     # Evaluate the model with the metrics we defined earlier

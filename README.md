@@ -6,7 +6,7 @@
 - [x] Pre-process video
 - [x] Collect and label the data  
 - [x] Load data for training
-- [ ] Build up the model
+- [x] Build up the model
 - [ ] Training the model
 - [ ] Merge two model for adaptive learning
 - [ ] Evaluate the compare the performance

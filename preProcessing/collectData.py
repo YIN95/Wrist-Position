@@ -10,7 +10,7 @@ def saveImage(image, path):
     save the image to the path
     '''
     filenames = os.listdir(path + 'image/')
-    print('data:', len(filenames), end=' ... ')
+    print('data:', len(filenames))
     path = (path + 'image/' + '%d.jpg')%len(filenames)
     cv2.imwrite(path, image)
 
